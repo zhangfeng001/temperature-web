@@ -501,7 +501,7 @@
           wdEndValue:'42',
           disKDWD:'1',
           mbStartValue:'20',
-          mbEndValue:'220',
+          mbEndValue:'180',
           disKDMB:'20',
           trHeight:15,
         }
