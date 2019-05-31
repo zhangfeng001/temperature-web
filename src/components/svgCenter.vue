@@ -33,11 +33,11 @@
                     <path :stroke-dasharray='item.strokeDasharray' :d='item.d'/>
                 </g>
             </template>
-            <!-- 处理温度/脉搏/心率展示 -->
+            <!-- 处理温度/脉搏/心率展示 线颜色填充 -->
             <template v-if='item.plabel == ""'> 
                 <path :key='item.key' :stroke='item.stroke' :stroke-width='item.strokeWidth' :fill='item.fill' :d='item.d'/>
             </template>
-            <!-- 事件点标记 以及鼠标触摸提示 -->
+            <!-- 事件点标记 以及鼠标触摸提示 点颜色填充-->
              <template v-if='item.label == "circle"'>  
                  <g :class="item.pclassName" :key='item.pkey' v-tooltip='{content:item.ptitle,classes:"tooltipClass"}'>
                     <circle :cx='item.cx' :cy='item.cy' :r='item.r' :stroke-width='item.strokeWidth' :stroke='item.stroke' 
@@ -64,14 +64,14 @@
                 </g>
             </template>
             <!-- 处理 xx 标记 -->
-             <template v-if='checkDataType(item)'> 
-                <g v-for="cItem in item" :key="cItem.pkey" :class='cItem.PClassName' v-tooltip='{content:cItem.pTitle,classes:"tooltipClass"}'>
-                    <template v-if='cItem.label == "line" && cItem.ppLabel == "svg"  && cItem.plabel == "Tooltip"'>
-                        <line :type='cItem.type' :title='cItem.title' :x1="cItem.x1" :y1="cItem.y1" :x2="cItem.x2" :y2="cItem.y2"
-                            :style='cItem.style'/>
-                    </template>
-                </g>
-            </template>
+                <template v-if='checkDataType(item)'> 
+                    <g v-for="cItem in item" :key="cItem.pkey" :class='cItem.PClassName' v-tooltip='{content:cItem.pTitle,classes:"tooltipClass"}'>
+                        <template v-if='cItem.label == "line" && cItem.ppLabel == "svg"  && cItem.plabel == "Tooltip"'>
+                            <line :type='cItem.type' :title='cItem.title' :x1="cItem.x1" :y1="cItem.y1" :x2="cItem.x2" :y2="cItem.y2"
+                                :style='cItem.style'/>
+                        </template>
+                    </g>
+                </template>
         </svg>
     </svg> 
 </template>

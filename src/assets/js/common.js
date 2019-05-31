@@ -429,11 +429,20 @@ export default {
             let disKDMB = Number(store.state.KDobj.disKDMB)
             let trLines = Number(store.state.KDobj.trLines)
             let trLittleCounts = Number(store.state.KDobj.trLittleCounts)
-
             let height = Number(store.state.KDobj.trHeight);
+
+            let ywSet = store.state.KDobj.ywSet
+            let gwSet = store.state.KDobj.gwSet
+            let kwSet = store.state.KDobj.kwSet
+            let mbSet = store.state.KDobj.mbSet
+            let xlSet = store.state.KDobj.xlSet
+            let wljwSet = store.state.KDobj.wljwSet
+
             let mb = pointData.mb || []; //脉搏
             let xl = pointData.xl || []; //心率
-            let wd = pointData.wd || []; //温度
+            let wdkw = pointData.wdkw || []; //口温度
+            let wdyw = pointData.wdyw || []; //腋温温度
+            let wdgw = pointData.wdgw || []; //肛温温度
             let tt = pointData.tt || []; //疼痛
             let events = pointData.eventDatas || []; //事件
             let leaveEvents = []; //缓存请假事件
@@ -501,13 +510,17 @@ export default {
             //请假前一个组 请假后一个组 多个请假同样适用
             let mbGroup = this.splitGroup(leaveEvents, mb);
             let xlGroup = this.splitGroup(leaveEvents, xl);
-            let wdGroup = this.splitGroup(leaveEvents, wd);
+            let wdkwGroup = this.splitGroup(leaveEvents, wdkw);
+            let wdywGroup = this.splitGroup(leaveEvents, wdyw);
+            let wdgwGroup = this.splitGroup(leaveEvents, wdgw);
             let ttGroup = this.splitGroup(leaveEvents, tt);
 
             //计算脉搏点
             let mbPoints = [];
             let xlPoints = [];
-            let wdPoints = [];
+            let wdkwPoints = [];
+            let wdywPoints = [];
+            let wdgwPoints = [];
             let ttPoints = [];
             //计算每个点的x , y坐标
             //根据请假的分组长度进行循环画点，四种参数长度一致
@@ -515,12 +528,16 @@ export default {
                 
                 let mbArray = mbGroup[i];
                 let xlArray = xlGroup[i];
-                let wdArray = wdGroup[i];
+                let wdkwArray = wdkwGroup[i];
+                let wdywArray = wdywGroup[i];
+                let wdgwArray = wdgwGroup[i];
                 let ttArray = ttGroup[i];
 
                 mbPoints[i] = [];//脉搏点集合
                 xlPoints[i] = [];//心率点集合
-                wdPoints[i] = [];//温度点集合
+                wdkwPoints[i] = [];//温度点集合
+                wdywPoints[i] = [];//温度点集合
+                wdgwPoints[i] = [];//温度点集合
                 ttPoints[i] = [];//疼痛点集合
 
                       
@@ -533,9 +550,17 @@ export default {
                     let xy = this.getXY(xlArray[j], curDate, beginKDMB, endKDMB, mbYSection);
                     xlPoints[i].push(xy);
                 }
-                for (let j = 0; j < wdArray.length; j++) {
-                    let xy = this.getXY(wdArray[j], curDate, beginKDWD, endKDWD, wdYSection);
-                    wdPoints[i].push(xy);
+                for (let j = 0; j < wdkwArray.length; j++) {
+                    let xy = this.getXY(wdkwArray[j], curDate, beginKDWD, endKDWD, wdYSection);
+                    wdkwPoints[i].push(xy);
+                }
+                for (let j = 0; j < wdywArray.length; j++) {
+                    let xy = this.getXY(wdywArray[j], curDate, beginKDWD, endKDWD, wdYSection);
+                    wdywPoints[i].push(xy);
+                }
+                for (let j = 0; j < wdgwArray.length; j++) {
+                    let xy = this.getXY(wdgwArray[j], curDate, beginKDWD, endKDWD, wdYSection);
+                    wdgwPoints[i].push(xy);
                 }
                 for (let j = 0; j < ttArray.length; j++) {
                     let xy = this.getXY(ttArray[j], curDate, 1, 10, ttYSection);
@@ -545,8 +570,8 @@ export default {
             //获取 温度等于42°C时的y轴值，如果温度大于42°,即y值小于wdMax，则绘制向上的箭头
             let wdMax = wdYSection[1];
             //绘制物理降温
-            for (let i = 0; i < wdPoints.length; i++) {
-                let wdPoint = wdPoints[i];
+            for (let i = 0; i < wdkwPoints.length; i++) {
+                let wdPoint = wdkwPoints[i];
                 for (let j = 0; j < wdPoint.length; j++) {
                     let value = wdPoint[j].value; //温度
                     let phValue = wdPoint[j].point.phValue; //物理降温
@@ -565,17 +590,93 @@ export default {
                                 label:'path',
                                 pkey:"pwljwPath" + xPx,
                                 key:"wljwPath" + xPx,
-                                pstyle:{fill: "none", stroke: "red", stokeWidth: "2px"},
+                                pstyle:{fill: "none", stroke: wljwSet.color, stokeWidth: "2px"},
                                 strokeDasharray:'3,3',
                                 d:"M" + xPx + " " + yPx + " " + xPx + " " + wljwY,
 
                             }
                         );
                         if (value !== phValue) {
-                            pointArray.push(this.drawCircle('wljw', {
-                                "x": xPx,
-                                "y": wljwY,
-                            }, 4, "red", "物理降温:" + phValue + "°C", false));
+                            // pointArray.push(this.drawCircle('wljw', {"x": xPx,"y": wljwY,}, 4, wljwSet.color, "物理降温:" + phValue + "°C", false));
+                            if( wljwSet.type == "cross"){
+                                pointArray.push(this.drawCross("wljw", {"x": xPx, "y": wljwY}, 4, wljwSet.color, "物理降温:" + phValue + "°C"));
+                            }else if(wljwSet.type == "circle"){
+                                pointArray.push(this.drawCircle('wljw', {"x": xPx,"y": wljwY,}, 4, wljwSet.color, "物理降温:" + phValue + "°C", wljwSet.fill));
+                            }
+                        }
+                    }
+                }
+            };
+            for (let i = 0; i < wdywPoints.length; i++) {
+                let wdPoint = wdywPoints[i];
+                for (let j = 0; j < wdPoint.length; j++) {
+                    let value = wdPoint[j].value; //温度
+                    let phValue = wdPoint[j].point.phValue; //物理降温
+                    let yPx = wdPoint[j].y;
+                    let xPx = wdPoint[j].x;
+                    if (phValue !== undefined && phValue !== "") {
+                        if (value > 42) {
+                            yPx = wdMax;
+                        }
+                        //获取物理降温的坐标
+                        let wljwY = this.getXY(wdPoint[j].point, curDate, beginKDWD, endKDWD, wdYSection, true).y;
+                        pointArray.push(
+                            {
+                                pname:'wljw',
+                                plabel:'g',
+                                label:'path',
+                                pkey:"pwljwPath" + xPx,
+                                key:"wljwPath" + xPx,
+                                pstyle:{fill: "none", stroke: wljwSet.color, stokeWidth: "2px"},
+                                strokeDasharray:'3,3',
+                                d:"M" + xPx + " " + yPx + " " + xPx + " " + wljwY,
+
+                            }
+                        );
+                        if (value !== phValue) {
+                            // pointArray.push(this.drawCircle('wljw', {"x": xPx,"y": wljwY,}, 4, wljwSet.color, "物理降温:" + phValue + "°C", false));
+                            if( wljwSet.type == "cross"){
+                                pointArray.push(this.drawCross("wljw", {"x": xPx, "y": wljwY}, 4, wljwSet.color, "物理降温:" + phValue + "°C"));
+                            }else if(wljwSet.type == "circle"){
+                                pointArray.push(this.drawCircle('wljw', {"x": xPx,"y": wljwY,}, 4, wljwSet.color, "物理降温:" + phValue + "°C", wljwSet.fill));
+                            }
+                        }
+                    }
+                }
+            };
+            for (let i = 0; i < wdgwPoints.length; i++) {
+                let wdPoint = wdgwPoints[i];
+                for (let j = 0; j < wdPoint.length; j++) {
+                    let value = wdPoint[j].value; //温度
+                    let phValue = wdPoint[j].point.phValue; //物理降温
+                    let yPx = wdPoint[j].y;
+                    let xPx = wdPoint[j].x;
+                    if (phValue !== undefined && phValue !== "") {
+                        if (value > 42) {
+                            yPx = wdMax;
+                        }
+                        //获取物理降温的坐标
+                        let wljwY = this.getXY(wdPoint[j].point, curDate, beginKDWD, endKDWD, wdYSection, true).y;
+                        pointArray.push(
+                            {
+                                pname:'wljw',
+                                plabel:'g',
+                                label:'path',
+                                pkey:"pwljwPath" + xPx,
+                                key:"wljwPath" + xPx,
+                                pstyle:{fill: "none", stroke: wljwSet.color, stokeWidth: "2px"},
+                                strokeDasharray:'3,3',
+                                d:"M" + xPx + " " + yPx + " " + xPx + " " + wljwY,
+
+                            }
+                        );
+                        if (value !== phValue) {
+                            // pointArray.push(this.drawCircle('wljw', {"x": xPx,"y": wljwY,}, 4, wljwSet.color, "物理降温:" + phValue + "°C", false));
+                            if( wljwSet.type == "cross"){
+                                pointArray.push(this.drawCross("wljw", {"x": xPx, "y": wljwY}, 4, wljwSet.color, "物理降温:" + phValue + "°C"));
+                            }else if(wljwSet.type == "circle"){
+                                pointArray.push(this.drawCircle('wljw', {"x": xPx,"y": wljwY,}, 4, wljwSet.color, "物理降温:" + phValue + "°C", wljwSet.fill));
+                            }
                         }
                     }
                 }
@@ -586,12 +687,17 @@ export default {
             for (let i = 0; i < mbPoints.length; i++) {
                 let xlPoint = xlPoints[i];
                 let mbPoint = mbPoints[i];
-                let wdPoint = wdPoints[i];
+                let wdkwPoint = wdkwPoints[i];
+                let wdywPoint = wdywPoints[i];
+                let wdgwPoint = wdgwPoints[i];
                 let ttPoint = ttPoints[i];
+
                 //定义折线path
                 let xlPath = "";
                 let mbPath = "";
-                let wdPath = "";
+                let wdkwPath = "";
+                let wdywPath = "";
+                let wdgwPath = "";
                 let ttPath = "";
                 coor[i] = {}
                 for (let j = 0; j < xlPoint.length; j++) {
@@ -616,17 +722,40 @@ export default {
                         mbPath += "L" + x + "," + y;
                     }
                 }
-                for (let j = 0; j < wdPoint.length; j++) {
-                    let x = wdPoint[j].x;
-                    let y = wdPoint[j].y;
+                for (let j = 0; j < wdkwPoint.length; j++) {
+                    let x = wdkwPoint[j].x;
+                    let y = wdkwPoint[j].y;
                     coor[i][x] = coor[i][x] || {};
-                    coor[i][x]['wd'] = wdPoint[j];
-                    if (wdPath === "") {
-                        wdPath += "M" + x + "," + y;
+                    coor[i][x]['wdkw'] = wdkwPoint[j];
+                    if (wdkwPath === "") {
+                        wdkwPath += "M" + x + "," + y;
                     } else {
-                        wdPath += "L" + x + "," + y;
+                        wdkwPath += "L" + x + "," + y;
                     }
                 }
+                for (let j = 0; j < wdywPoint.length; j++) {
+                    let x = wdywPoint[j].x;
+                    let y = wdywPoint[j].y;
+                    coor[i][x] = coor[i][x] || {};
+                    coor[i][x]['wdyw'] = wdywPoint[j];
+                    if (wdywPath === "") {
+                        wdywPath += "M" + x + "," + y;
+                    } else {
+                        wdywPath += "L" + x + "," + y;
+                    }
+                }
+                for (let j = 0; j < wdgwPoint.length; j++) {
+                    let x = wdgwPoint[j].x;
+                    let y = wdgwPoint[j].y;
+                    coor[i][x] = coor[i][x] || {};
+                    coor[i][x]['wdgw'] = wdgwPoint[j];
+                    if (wdgwPath === "") {
+                        wdgwPath += "M" + x + "," + y;
+                    } else {
+                        wdgwPath += "L" + x + "," + y;
+                    }
+                }
+                
                 for (let j = 0; j < ttPoint.length; j++) {
                     let x = ttPoint[j].x;
                     let y = ttPoint[j].y;
@@ -642,7 +771,7 @@ export default {
                     label:'path',
                     plabel:'',
                     key:'pathXL'+i,
-                    stroke:'red',
+                    stroke:xlSet.color,
                     strokeWidth:'2',
                     fill:'none',
                     d:xlPath,
@@ -651,20 +780,40 @@ export default {
                     label:'path',
                     plabel:'',
                     key:'pathMB'+i,
-                    stroke:'red',
+                    stroke:mbSet.color,
                     strokeWidth:'2',
                     fill:'none',
                     d:mbPath,
                 });
+
                 pointArray.push({
                     label:'path',
                     plabel:'',
                     key:'pathWD'+i,
-                    stroke:'blue',
+                    stroke:ywSet.color,
                     strokeWidth:'2',
                     fill:'none',
-                    d:wdPath,
+                    d:wdkwPath,
                 });
+                pointArray.push({
+                    label:'path',
+                    plabel:'',
+                    key:'pathWDyw'+i,
+                    stroke:ywSet.color,
+                    strokeWidth:'2',
+                    fill:'none',
+                    d:wdywPath,
+                });
+                pointArray.push({
+                    label:'path',
+                    plabel:'',
+                    key:'pathWDgw'+i,
+                    stroke:ywSet.color,
+                    strokeWidth:'2',
+                    fill:'none',
+                    d:wdgwPath,
+                });
+
                 pointArray.push({
                     label:'path',
                     plabel:'',
@@ -685,8 +834,14 @@ export default {
                     if (!json[j].xl) {
                         json[j].xl = {};
                     }
-                    if (!json[j].wd) {
-                        json[j].wd = {};
+                    if (!json[j].wdkw) {
+                        json[j].wdkw = {};
+                    }
+                    if (!json[j].wdyw) {
+                        json[j].wdyw = {};
+                    }
+                    if (!json[j].wdgw) {
+                        json[j].wdgw = {};
                     }
                     if (!json[j].tt) {
                         json[j].tt = {};
@@ -694,155 +849,227 @@ export default {
                     //console.log(json[j].wd)
                     let mbY = json[j].mb.y;
                     let xlY = json[j].xl.y;
-                    let wdY = json[j].wd.y;
+                    let wdkwY = json[j].wdkw.y;
+                    let wdywY = json[j].wdyw.y;
+                    let wdgwY = json[j].wdgw.y;
                     let ttY = json[j].tt.y;
                     //console.log("mb:"+mbY+"xl:"+xlY+"wd:"+wdY);
-                    let yw = json[j].wd.type === 'yw'; //腋温
-                    let kw = json[j].wd.type === 'kw'; //口温
-                    let gw = json[j].wd.type === 'gw'; //肛温
+                    let yw = json[j].wdyw.type === 'yw'; //腋温
+                    let kw = json[j].wdkw.type === 'kw'; //口温
+                    let gw = json[j].wdgw.type === 'gw'; //肛温
                     //判断是否重合
-                    let ismbxlwd = mbY && xlY && wdY; //脉搏+心率+温度点都存在
+                    let ismbxlwd = mbY && xlY && wdywY; //脉搏+心率+温度点都存在
                     let ismbxl = mbY && xlY; //脉搏+心率点都存在
-                    let ismbwd = mbY && wdY; //脉搏+温度点都存在
-                    let isxlwd = xlY && wdY; //心率+温度点都存在
+                    let ismbwd = mbY && wdywY; //脉搏+温度点都存在
+                    let isxlwd = xlY && wdywY; //心率+温度点都存在
                     let istt = ttY;
-                    let iswd = wdY;
-                    if (ismbxlwd && mbY === xlY && xlY === wdY && gw) { //脉搏+心率+肛温[红圆+红圈+蓝圈]：两个圈在外围（红圈在最外层表示心率，篮圈在里层表示肛温）、一个圆在中间（红圆表示脉搏）
+                    let iswd = wdywY;
+                    if (ismbxlwd && mbY === xlY && xlY === wdywY && gw) { //脉搏+心率+肛温[红圆+红圈+蓝圈]：两个圈在外围（红圈在最外层表示心率，篮圈在里层表示肛温）、一个圆在中间（红圆表示脉搏）
                         let title = "脉搏：" + json[j].xl.value + "次，心率：" + json[j].xl.value + "次,肛温：" + json[j].wd.value + "°C";
-                        pointArray.push(this.drawCircle("gw", {"x": j, "y": xlY}, 7, "blue", title, false));
-                        pointArray.push(this.drawCircle("mb", {"x": j, "y": xlY}, 3, "red", title, true));
-                    } else if (ismbxlwd && mbY === xlY && xlY === wdY && yw) {//脉搏+心率+腋温[红圆+红圈+蓝叉]：红圈在外围（表示心率）、红圆在中间（表示脉搏）、蓝叉在中间红圆之上（表示腋温）
+                        if(gwSet.type == 'cross'){
+                            pointArray.push(this.drawCross("gw", {"x": j, "y": xlY}, 7, gwSet.color, title));
+                        }else if(gwSet.type == 'circle'){
+                            pointArray.push(this.drawCircle("gw", {"x": j, "y": xlY}, 7, gwSet.color, title, gwSet.fill));
+                        }
+                        if(mbSet.type == 'cross'){
+                            pointArray.push(this.drawCross("mb", {"x": j, "y": xlY}, 3, mbSet.color, title));
+                        }else if(mbSet.type == 'circle'){
+                            pointArray.push(this.drawCircle("mb", {"x": j, "y": xlY}, 3, mbSet.color, title, mbSet.fill));
+                        }
+
+                    } else if (ismbxlwd && mbY === xlY && xlY === wdywY && yw) {//脉搏+心率+腋温[红圆+红圈+蓝叉]：红圈在外围（表示心率）、红圆在中间（表示脉搏）、蓝叉在中间红圆之上（表示腋温）
                         let title = "脉搏：" + json[j].xl.value + "次，心率：" + json[j].xl.value + "次,腋温：" + json[j].wd.value + "°C";
-                        pointArray.push(this.drawCircle("mb", {"x": j, "y": xlY}, 7, "red", title, true));
-                        pointArray.push(this.drawCross("yw", {"x": j, "y": xlY}, 3, "blue", title));
-                    } else if (ismbxlwd && mbY === xlY && xlY === wdY && kw) {//脉搏+心率+口温[红圆+红圈+蓝圆]：红圈在外围（表示心率）、红圆在中间（表示脉搏）、蓝圆在中间红圆之上（表示口温）
+                        if(mbSet.type == 'cross'){
+                            pointArray.push(this.drawCross("mb", {"x": j, "y": xlY}, 7, mbSet.color, title));
+                        }else if(mbSet.type == 'circle'){
+                            pointArray.push(this.drawCircle("mb", {"x": j, "y": xlY}, 7, mbSet.color, title, mbSet.fill));
+                        }
+                        if(ywSet.type == 'cross'){
+                            pointArray.push(this.drawCross("yw", {"x": j, "y": xlY},3, ywSet.color, title));
+                        }else if(ywSet.type == 'circle'){
+                            pointArray.push(this.drawCircle("yw", {"x": j, "y": xlY},3, ywSet.color, title, ywSet.fill));
+                        }
+                    } else if (ismbxlwd && mbY === xlY && xlY === wdywY && kw) {//脉搏+心率+口温[红圆+红圈+蓝圆]：红圈在外围（表示心率）、红圆在中间（表示脉搏）、蓝圆在中间红圆之上（表示口温）
                         let title = "脉搏：" + json[j].xl.value + "次，心率：" + json[j].xl.value + "次,口温：" + json[j].wd.value + "°C";
-                        pointArray.push(this.drawCircle("mb", {"x": j, "y": xlY}, 7, "red", title, true));
-                        pointArray.push(this.drawCircle("kw", {"x": j, "y": xlY}, 3, "blue", title, true));
-                    } else if (isxlwd && xlY === wdY && gw) { //心率+肛温[红圈+蓝圈]
+                        if(mbSet.type == 'cross'){
+                            pointArray.push(this.drawCross("mb", {"x": j, "y": xlY}, 7, mbSet.color, title));
+                        }else if(mbSet.type == 'circle'){
+                            pointArray.push(this.drawCircle("mb", {"x": j, "y": xlY}, 7, mbSet.color, title, mbSet.fill));
+                        }
+                        if(kwSet.type == 'cross'){
+                            pointArray.push(this.drawCross("kw", {"x": j, "y": xlY}, 3, kwSet.color, title));
+                        }else if(kwSet.type == 'circle'){
+                            pointArray.push(this.drawCircle("kw", {"x": j, "y": xlY}, 3, kwSet.color, title, kwSet.fill));
+                        }
+                    } else if (isxlwd && xlY === wdywY && gw) { //心率+肛温[红圈+蓝圈]
                         let title = "心率：" + json[j].xl.value + "次，肛温：" + json[j].wd.value + "°C";
-                        if (xlY && wdY) {
-                            pointArray.push(this.drawCircle("gw", {"x": j, "y": xlY}, 7, "red", title, false));
-                            pointArray.push(this.drawCircle("mb", {"x": j, "y": xlY}, 3, "blue", title, false));
-                        }
-                        mbY && pointArray.push(this.drawCircle("mb", {
-                            "x": j,
-                            "y": mbY
-                        }, 4, "red", "脉搏：" + json[j].mb.value + "次", true));//脉搏
-                    } else if (isxlwd && xlY === wdY && yw) { //心率+腋温[红圈+蓝叉]]
-                        let title = "心率：" + json[j].xl.value + "次，腋温：" + json[j].wd.value + "°C";
-                        if (xlY && wdY) {
-                            pointArray.push(this.drawCircle("mb", {"x": j, "y": xlY}, 7, "red", title, false));
-                            pointArray.push(this.drawCross("yw", {"x": j, "y": xlY}, 4, "blue", title));
-                        }
-                        mbY && pointArray.push(this.drawCircle("mb", {
-                            "x": j,
-                            "y": mbY
-                        }, 4, "red", "脉搏：" + json[j].mb.value + "次", true));//脉搏
-                    } else if (isxlwd && xlY === wdY && kw) {  //心率+口温[红圈+蓝圆]
-                        let title = "心率：" + json[j].xl.value + "次，口温：" + json[j].wd.value + "°C";
-                        if (xlY && wdY) {
-                            pointArray.push(this.drawCircle("xl", {"x": j, "y": xlY}, 7, "red", title, false));
-                            pointArray.push(this.drawCircle("kw", {"x": j, "y": xlY}, 3, "blue", title, true));
-                        }
-                        mbY && pointArray.push(this.drawCircle("mb", {
-                            "x": j,
-                            "y": mbY
-                        }, 4, "red", "脉搏：" + json[j].mb.value + "次", true));//脉搏
-                    } else if (ismbwd && mbY === wdY && gw) { //脉搏+肛温[红圆+蓝圈]
-                        let title = "脉搏：" + json[j].mb.value + "次，肛温：" + json[j].wd.value + "°C";
-                        if (mbY && wdY) {
-                            pointArray.push(this.drawCircle("gw", {"x": j, "y": mbY}, 7, "red", title, false));
-                            pointArray.push(this.drawCircle("mb", {"x": j, "y": mbY}, 3, "blue", title, false));
-                        }
-                        xlY && pointArray.push(this.drawCircle("xl", {
-                            "x": j,
-                            "y": xlY
-                        }, 4, "red", "心率：" + json[j].xl.value + "次", false));//心率
-                    } else if (ismbwd && mbY === wdY && yw) { //脉搏+腋温[红圆+蓝叉]
-                        let title = "脉搏：" + json[j].mb.value + "次，腋温：" + json[j].wd.value + "°C";
-                        if (mbY && wdY) {
-                            pointArray.push(this.drawCircle("mb", {"x": j, "y": mbY}, 7, "red", title, false));
-                            pointArray.push(this.drawCross("yw", {"x": j, "y": mbY}, 4, "blue", title));
-                        }
-                        xlY && pointArray.push(this.drawCircle("xl", {
-                            "x": j,
-                            "y": xlY
-                        }, 4, "red", "心率：" + json[j].xl.value + "次", false));//心率
-                    } else if (ismbwd && mbY === wdY && kw) {  //脉搏+口温[红圆+蓝圆]
-                        let title = "脉搏：" + json[j].mb.value + "次，口温：" + json[j].wd.value + "°C";
-                        if (mbY && wdY) {
-                            pointArray.push(this.drawCircle("mb", {"x": j, "y": mbY}, 7, "red", title, false));
-                            pointArray.push(this.drawCircle("kw", {"x": j, "y": mbY}, 3, "blue", title, true));
-                        }
-                        xlY && pointArray.push(this.drawCircle("xl", {
-                            "x": j,
-                            "y": xlY
-                        }, 4, "red", "心率：" + json[j].xl.value + "次", false));//心率
-                    } else if (ismbxl && mbY === xlY) { //脉搏+心率[红圆]
-                        let title = "脉搏：" + json[j].mb.value + "次，心率" + json[j].mb.value + "次";
-                        mbY && xlY && pointArray.push(this.drawCircle("mb", {"x": j, "y": mbY}, 4, "red", title, true));
-                        drawWd(json[j], j, wdY);
-                    } else {//正常绘制
-                        xlY && pointArray.push(this.drawCircle("xl", {
-                            "x": j,
-                            "y": xlY
-                        }, 4, "red", "心率：" + json[j].xl.value + "次", false));//心率
-                        mbY && pointArray.push(this.drawCircle("mb", {
-                            "x": j,
-                            "y": mbY
-                        }, 4, "red", "脉搏：" + json[j].mb.value + "次", true));//脉搏
-                        drawWd(json[j], j, wdY);
-                    }
-        
-                    //绘制温度
-                    function drawWd(point, j, wdY) {
-                        if (wdY && wdY < wdMax) {
-                            //绘制向上的箭头
-                            pointArray.push(that.drawArrow({"x": j, "y": wdMax}, 2 * height, true, 'blue'));
-                        } else {
-                            if (point.wd.type === "yw") {
-                                wdY && pointArray.push(that.drawCross("yw", {
-                                    "x": j,
-                                    "y": wdY
-                                }, 4, "blue", "腋温：" + point.wd.value + "°C"));//温度
-                            } else if (point.wd.type === "gw") {
-                                wdY && pointArray.push(that.drawCircle("gw", {
-                                    "x": j,
-                                    "y": wdY
-                                }, 4, "blue", "肛温：" + point.wd.value + "°C", false));
-                            } else if (point.wd.type === "kw") {
-                                wdY && pointArray.push(that.drawCircle("yw", {
-                                    "x": j,
-                                    "y": wdY
-                                }, 4, "blue", "口温：" + point.wd.value + "°C", true));
+                        if (xlY && wdywY) {
+                            if(mbSet.type == 'cross'){
+                                pointArray.push(this.drawCross("mb", {"x": j, "y": xlY}, 3, mbSet.color, title));
+                            }else if(mbSet.type == 'circle'){
+                                pointArray.push(this.drawCircle("mb", {"x": j, "y": xlY}, 3, mbSet.color, title, mbSet.fill));
+                            }
+                            if(gwSet.type == 'cross'){
+                                pointArray.push(this.drawCross("gw", {"x": j, "y": xlY}, 7, gwSet.color, title));
+                            }else if(gwSet.type == 'circle'){
+                                pointArray.push(this.drawCircle("gw", {"x": j, "y": xlY}, 7, gwSet.color, title, gwSet.fill));
                             }
                         }
+                        if(mbSet.type == 'cross'){
+                            pointArray.push(this.drawCross("mb", {"x": j, "y": xlY}, 4, mbSet.color, "脉搏：" + json[j].mb.value + "次"));
+                        }else if(mbSet.type == 'circle'){
+                            mbY && pointArray.push(this.drawCircle("mb", {"x": j,"y": mbY}, 4, mbSet.color, "脉搏：" + json[j].mb.value + "次", mbSet.fill));//脉搏
+                        }
+
+                    } else if (isxlwd && xlY === wdywY && yw) { //心率+腋温[红圈+蓝叉]]
+                        let title = "心率：" + json[j].xl.value + "次，腋温：" + json[j].wd.value + "°C";
+                        if (xlY && wdywY) {
+                            if(mbSet.type == 'cross'){
+                                pointArray.push(this.drawCross("mb", {"x": j, "y": xlY}, 7, mbSet.color, title));
+                            }else if(mbSet.type == 'circle'){
+                                pointArray.push(this.drawCircle("mb", {"x": j, "y": xlY}, 7, mbSet.color, title, mbSet.fill));
+                            }
+                            if(ywSet.type == 'cross'){
+                                pointArray.push(this.drawCross("yw", {"x": j, "y": xlY}, 4, ywSet.color, title));
+                            }else if(ywSet.type == 'circle'){
+                                pointArray.push(this.drawCircle("yw", {"x": j, "y": xlY}, 4, ywSet.color, title, ywSet.fill));
+                            }
+                        }
+                        if(mbSet.type == 'cross'){
+                            pointArray.push(this.drawCross("mb", {"x": j, "y": xlY}, 4, mbSet.color, "脉搏：" + json[j].mb.value + "次"));
+                        }else if(mbSet.type == 'circle'){
+                            mbY && pointArray.push(this.drawCircle("mb", {"x": j,"y": mbY}, 4, mbSet.color, "脉搏：" + json[j].mb.value + "次", mbSet.fill));//脉搏
+                        }
+
+                    } else if (isxlwd && xlY === wdywY && kw) {  //心率+口温[红圈+蓝圆]
+                        let title = "心率：" + json[j].xl.value + "次，口温：" + json[j].wd.value + "°C";
+                        if (xlY && wdywY) {
+                            if(xlSet.type == 'cross'){
+                                pointArray.push(this.drawCross("xl", {"x": j, "y": xlY}, 7, xlSet.color, title));
+                            }else if(xlSet.type == 'circle'){
+                                pointArray.push(this.drawCircle("xl", {"x": j, "y": xlY}, 7, xlSet.color, title, xlSet.fill));
+                            }
+                            if(kwSet.type == 'cross'){
+                                pointArray.push(this.drawCross("kw", {"x": j, "y": xlY}, 3, kwSet.color, title));
+                            }else if(kwSet.type == 'circle'){
+                                pointArray.push(this.drawCircle("kw", {"x": j, "y": xlY}, 3, kwSet.color, title, kwSet.fill));
+                            }
+                        }
+                        if(mbSet.type == 'cross'){
+                            pointArray.push(this.drawCross("mb", {"x": j, "y": mbY}, 4, mbSet.color, "脉搏：" + json[j].mb.value + "次"));
+                        }else if(mbSet.type == 'circle'){
+                            pointArray.push(this.drawCircle("mb", {"x": j, "y": mbY}, 4, mbSet.color, "脉搏：" + json[j].mb.value + "次", mbSet.fill));
+                        }
+                    } else if (ismbwd && mbY === wdywY && gw) { //脉搏+肛温[红圆+蓝圈]
+                        let title = "脉搏：" + json[j].mb.value + "次，肛温：" + json[j].wd.value + "°C";
+                        if (mbY && wdywY) {
+                            if(gwSet.type == 'cross'){
+                                pointArray.push(this.drawCross("gw", {"x": j, "y": mbY}, 3, gwSet.color, title));
+                            }else if(gwSet.type == 'circle'){
+                                pointArray.push(this.drawCircle("gw", {"x": j, "y": mbY}, 7, gwSet.color, title, gwSet.fill));
+                            }
+                            if(mbSet.type == 'cross'){
+                                pointArray.push(this.drawCross("mb", {"x": j, "y": mbY}, 3, mbSet.color, title));
+                            }else if(mbSet.type == 'circle'){
+                                pointArray.push(this.drawCircle("mb", {"x": j, "y": mbY}, 7, mbSet.color, title, mbSet.fill));
+                            }
+                        }
+                        if(xlSet.type == 'cross'){
+                            pointArray.push(this.drawCross("xl", {"x": j, "y": xlY}, 4, xlSet.color, "心率：" + json[j].xl.value + "次"));
+                        }else if(xlSet.type == 'circle'){
+                            xlY && pointArray.push(this.drawCircle("xl", {"x": j,"y": xlY}, 4, xlSet.color, "心率：" + json[j].xl.value + "次", xlSet.fill));//心率
+                        }
+
+                    } else if (ismbwd && mbY === wdywY && yw) { //脉搏+腋温[红圆+蓝叉]
+                        let title = "脉搏：" + json[j].mb.value + "次，腋温：" + json[j].wd.value + "°C";
+                        if (mbY && wdywY) {
+                            if(mbSet.type == 'cross'){
+                                pointArray.push(this.drawCross("mb", {"x": j, "y": mbY}, 4, mbSet.color, title));
+                            }else if(mbSet.type == 'circle'){
+                                pointArray.push(this.drawCircle("mb", {"x": j, "y": mbY}, 7, mbSet.color, title, false));
+                            }
+                            if(ywSet.type == 'cross'){
+                                pointArray.push(this.drawCross("yw", {"x": j, "y": mbY}, 4, ywSet.color, title));
+                            }else if(ywSet.type == 'circle'){
+                                pointArray.push(this.drawCircle("yw", {"x": j, "y": mbY}, 7, ywSet.color, title, false));
+                            }
+                        }
+                        if(xlSet.type == 'cross'){
+                            pointArray.push(this.drawCross("xl", {"x": j, "y": xlY}, 4, xlSet.color, "心率：" + json[j].xl.value + "次"));
+                        }else if(xlSet.type == 'circle'){
+                            xlY && pointArray.push(this.drawCircle("xl", {"x": j,"y": xlY}, 4, xlSet.color, "心率：" + json[j].xl.value + "次", xlSet.fill));//心率
+                        }
+                    } else if (ismbwd && mbY === wdywY && kw) {  //脉搏+口温[红圆+蓝圆]
+                        let title = "脉搏：" + json[j].mb.value + "次，口温：" + json[j].wd.value + "°C";
+                        if (mbY && wdywY) {
+                            if(mbSet.type == 'cross'){
+                                pointArray.push(this.drawCross("mb", {"x": j, "y": mbY}, 7, mbSet.color, title));
+                            }else if(mbSet.type == 'circle'){
+                                pointArray.push(this.drawCircle("mb", {"x": j, "y": mbY}, 3, mbSet.color, title, mbSet.fill));
+                            }
+                            if(kwSet.type == 'cross'){
+                                pointArray.push(this.drawCross("kw", {"x": j, "y": mbY}, 7, kwSet.color, title));
+                            }else if(kwSet.type == 'circle'){
+                                pointArray.push(this.drawCircle("kw", {"x": j, "y": mbY}, 3, kwSet.color, title, kwSet.fill));
+                            }
+                        }
+                        if(xlSet.type == 'cross'){
+                            pointArray.push(this.drawCross("xl", {"x": j, "y": xlY}, 4, xlSet.color, "心率：" + json[j].xl.value + "次"));
+                        }else if(xlSet.type == 'circle'){
+                            xlY && pointArray.push(this.drawCircle("xl", {"x": j,"y": xlY}, 4, xlSet.color, "心率：" + json[j].xl.value + "次", xlSet.fill));//心率
+                        }
+                        
+                    } else if (ismbxl && mbY === xlY) { //脉搏+心率[红圆]
+                        let title = "脉搏：" + json[j].mb.value + "次，心率" + json[j].mb.value + "次";
+                        if(mbSet.type == 'cross'){
+                            pointArray.push(this.drawCross("mb", {"x": j, "y": mbY}, 4, mbSet.color, title));
+                        }else if(mbSet.type == 'circle'){
+                            xlY && pointArray.push(this.drawCircle("mb", {"x": j,"y": mbY}, 4, mbSet.color, title, mbSet.fill));//心率
+                        }
+                        drawWd(json[j], j, wdywY);
+                    } else {//正常绘制
+                        if(mbSet.type == 'cross'){
+                            pointArray.push(this.drawCross("mb", {"x": j, "y": mbY}, 7, mbSet.color, "脉搏：" + json[j].mb.value + "次"));
+                        }else if(mbSet.type == 'circle'){
+                            mbY && pointArray.push(this.drawCircle("mb", {"x": j,"y": mbY}, 4, mbSet.color, "脉搏：" + json[j].mb.value + "次", mbSet.fill));//脉搏
+                        }
+                        if(xlSet.type == 'cross'){
+                            pointArray.push(this.drawCross("xl", {"x": j, "y": xlY}, 3, xlSet.color, "心率：" + json[j].xl.value + "次"));
+                        }else if(xlSet.type == 'circle'){
+                            xlY && pointArray.push(this.drawCircle("xl", {"x": j,"y": xlY}, 4, xlSet.color, "心率：" + json[j].xl.value + "次", xlSet.fill));//心率
+                        }
+                        drawWd(json[j], j);
                     }
-        
+                    //绘制温度
+                    function drawWd(point, j, wdywY) {
+                            //三个温度 分别绘制图例
+                            //画腋温  根据后台设置来画
+                            if(ywSet.type == 'cross'){
+                                point.wdyw.y &&  pointArray.push(that.drawCross("yw", {"x": j, "y": point.wdyw.y}, 4, ywSet.color, "腋温：" + point.wdkw.value + "°C"));
+                            }else if(ywSet.type == 'circle'){
+                                point.wdyw.y && pointArray.push(that.drawCircle("yw", {"x": j,"y": point.wdyw.y}, 4, ywSet.color, "腋温：" + point.wdkw.value + "°C", ywSet.fill));
+                            }
+                            //画肛温  根据后台设置来画
+                            if(gwSet.type == 'cross'){
+                                point.wdgw.y && pointArray.push(that.drawCross("gw", {"x": j, "y": point.wdgw.y}, 4, gwSet.color, "肛温：" + point.wdkw.value + "°C"));
+                            }else if(gwSet.type == 'circle'){
+                                point.wdgw.y && pointArray.push(that.drawCircle("gw", {"x": j,"y": point.wdgw.y}, 4, gwSet.color, "肛温：" + point.wdkw.value + "°C", gwSet.fill));
+                            }
+                            //画口温  根据后台设置来画
+                            if(kwSet.type == 'cross'){
+                                point.wdkw.y && pointArray.push(that.drawCross("kw", {"x": j, "y": point.wdkw.y}, 4, kwSet.color, "口温：" + point.wdkw.value + "°C"));
+                            }else if(kwSet.type == 'circle'){
+                                point.wdkw.y && pointArray.push(that.drawCircle("kw", {"x": j,"y": point.wdkw.y}, 4, kwSet.color, "口温：" + point.wdkw.value + "°C", kwSet.fill));
+                            }
+                        }
                     //绘制疼痛
                     let title = "疼痛：" + json[j].tt.value;
                     istt && pointArray.push(this.drawSquare("tt", {"x": j, "y": ttY}, 4, "blue", title, true));
                 }
             }
-        
-            for (let i = 0; i < mbPoints.length; i++) {
-                for (let j = 0; j < mbPoints[i].length; j++) {
-                    let x = mbPoints[i][j].x;
-                    let y = mbPoints[i][j].y;
-                    //pointArray.push(this.drawCircle("mb",{"x":x,"y":y},4,"red","脉搏",true));
-                }
-                for (let j = 0; j < xlPoints[i].length; j++) {
-                    let x = xlPoints[i][j].x;
-                    let y = xlPoints[i][j].y;
-                    //pointArray.push(this.drawCircle("xl",{"x":x,"y":y},4,"red","心率",false));
-                }
-            }
             // 根据心率和脉搏点，绘制多边形（脉搏短促）
             //统计出现的多边形
             let polygonArray = this.getPolygon(mbPoints, xlPoints);
-            //console.log("多边形")
-            //console.log(polygonArray)
             //绘制多边形
             for (let i = 0; i < polygonArray.length; i++) {
                 let polygon = polygonArray[i];
@@ -856,7 +1083,27 @@ export default {
          * @param {Array} xlPoints 心率点
          * 脉搏短绌即在同一单位时间内，脉率少于心率
          */
-        Vue.prototype.getPolygon = function(mbPoints, xlPoints){        
+        Vue.prototype.getPolygon = function(mbPoints, xlPoints){
+            let mbPointsIndex = 0;
+            let xlPointsIndex = 0;
+            mbPoints.map((item,index) => {
+                if( item.length == 0 ){
+                    mbPoints.splice(index,1)
+                    mbPointsIndex = index
+                }
+            })
+            xlPoints.map((item,index) => {
+                if( item.length == 0 ){
+                    xlPoints.splice(index,1)
+                    xlPointsIndex = index
+                }
+            })
+            if( mbPoints.length > xlPoints.length ){
+                xlPoints.splice(xlPointsIndex,0,mbPoints[xlPointsIndex])
+            };
+            if( mbPoints.length < xlPoints.length ){
+                mbPoints.splice(mbPointsIndex,0,xlPoints[mbPointsIndex])
+            };
             let polygonArray = [];
             let intersectionArray = []; //缓存交点数组
             for (let i = 0; i < mbPoints.length; i++) {
@@ -1543,10 +1790,15 @@ export default {
          * @return
          */
         Vue.prototype.drawBlueLine =function (polygonArray, key) {
+            let ywSet = store.state.KDobj.ywSet
+            let gwSet = store.state.KDobj.gwSet
+            let kwSet = store.state.KDobj.kwSet
+            let mbSet = store.state.KDobj.mbSet
+            let xlSet = store.state.KDobj.xlSet
             let htmlArray = [];
-            let polygonline = this.drawPolygon(polygonArray, "red").linear;
-            let htmlde = this.drawPolygon(polygonArray, "red", 'polygon').html;
-            let point = this.drawPolygon(polygonArray, "red").point;
+            let polygonline = this.drawPolygon(polygonArray, mbSet.color).linear;
+            let htmlde = this.drawPolygon(polygonArray, mbSet.color, 'polygon').html;
+            let point = this.drawPolygon(polygonArray, mbSet.color).point;
             let totalPoints = [];
             let blueLineFuncs = this.getBlueLineFuncs();
             for (let i = 0; i < blueLineFuncs.length; i++) {
@@ -1582,7 +1834,8 @@ export default {
                         y1:points[0].y,
                         x2:points[1].x,
                         y2:points[1].y,
-                        style:{stroke: 'blue', strokeWidth: 1}
+                        // style:{stroke: ywSet.color, strokeWidth: 1}
+                        style:{stroke: "#000000", strokeWidth: 1}
                     })                 
                 } else if (points.length > 2 && points.length % 2 === 0) {
                     //根据x值大小排序（升序）冒泡排序
@@ -1606,7 +1859,7 @@ export default {
                             y1:points[i].y,
                             x2:points[i + 1].x,
                             y2:points[i + 1].y,
-                            style:{stroke: 'blue', strokeWidth: 1}
+                            style:{stroke: mbSet.color, strokeWidth: 1}
                         })     
                     }
                 }

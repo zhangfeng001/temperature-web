@@ -25,12 +25,12 @@
           trHeight:15,//tr高度 
         },//刻度配置项
         data: "",
-        hospital:"北京市博仁医院体温单",
+        hospital:"",
         beginDate: "2017-06-28",
         patientList: {
             name: "胡八一", //姓名
             sex: "男", //性别
-            age: "40", //年龄
+            age: "41", //年龄
             admissionDateTime: "2017-06-28", //入院时间
             endemicName: "骨科", //科室
             bedNo: "123", //床号
@@ -131,7 +131,27 @@
                 "type": "",
                 "value": "100",
                 "xlValue": ""
-            }, {
+            },
+            {
+                "dataTime": "2017-06-30 10:00:00",
+                "date": "2017-06-30",
+                "hour": 10,
+                "mbValue": "",
+                "phValue": "",
+                "type": "",
+                "value": "100",
+                "xlValue": ""
+            },{
+                "dataTime": "2017-06-30 16:00:00",
+                "date": "2017-06-30",
+                "hour": 16,
+                "mbValue": "",
+                "phValue": "",
+                "type": "",
+                "value": "100",
+                "xlValue": ""
+            },
+             {
                 "dataTime": "2017-06-30 22:00:00",
                 "date": "2017-06-30",
                 "hour": 22,
@@ -222,7 +242,8 @@
                 "type": "",
                 "value": "105",
                 "xlValue": ""
-            },{
+            },
+            {
                 "dataTime": "2017-06-30 02:00:00",
                 "date": "2017-06-30",
                 "hour": 2,
@@ -231,7 +252,8 @@
                 "type": "",
                 "value": "98",
                 "xlValue": ""
-            },{
+            },
+            {
                 "dataTime": "2017-06-30 10:00:00",
                 "date": "2017-06-30",
                 "hour": 10,
@@ -240,7 +262,8 @@
                 "type": "",
                 "value": "103",
                 "xlValue": ""
-            },{
+            },
+            {
                 "dataTime": "2017-07-01 02:00:00",
                 "date": "2017-07-01",
                 "hour": 2,
@@ -310,29 +333,8 @@
                 "type": "",
                 "value": "入院",
                 "xlValue": ""
-            }, 
-            // {
-            //     "dataTime": "2017-06-29 14:00:00",
-            //     "date": "2017-06-29",
-            //     "hour": 14,
-            //     "mbValue": "",
-            //     "phValue": "",
-            //     "type": "",
-            //     "value": "开呼吸机",
-            //     "xlValue": ""
-            // }, 
-            // {
-            //     "dataTime": "2017-06-29 22:00:00",
-            //     "date": "2017-06-29",
-            //     "hour": 22,
-            //     "mbValue": "",
-            //     "phValue": "",
-            //     "type": "",
-            //     "value": "关呼吸机",
-            //     "xlValue": ""
-            // }
-            ],
-            "wd": [{
+            }],
+            "wdkw": [{
                 "dataTime": "2017-06-28 02:00:00",
                 "date": "2017-06-28",
                 "hour": 2,
@@ -341,90 +343,111 @@
                 "type": "kw",
                 "value": "36.5",
                 "xlValue": ""
+            },
+            {
+                "dataTime": "2017-06-28 06:00:00",
+                "date": "2017-06-28",
+                "hour": 6,
+                "mbValue": "",
+                "phValue": "36.2",
+                "type": "kw",
+                "value": "37.5",
+                "xlValue": ""
             },{
                 "dataTime": "2017-06-28 10:00:00",
                 "date": "2017-06-28",
                 "hour": 10,
                 "mbValue": "",
                 "phValue": "",
-                "type": "gw",
+                "type": "kw",
                 "value": "36.5",
                 "xlValue": ""
             },{
-                "dataTime": "2017-06-29 02:00:00",
+                "dataTime": "2017-06-29 10:00:00",
                 "date": "2017-06-29",
-                "hour": 2,
-                "mbValue": "",
-                "phValue": "36.5",
-                "type": "gw",
-                "value": "37.2",
-                "xlValue": ""
-            }, {
-                "dataTime": "2017-06-29 06:00:00",
-                "date": "2017-06-29",
-                "hour": 6,
-                "mbValue": "",
-                "phValue": "",
-                "type": "yw",
-                "value": "37",
-                "xlValue": ""
-            }, {
-                "dataTime": "2017-06-29 14:00:00",
-                "date": "2017-06-29",
-                "hour": 14,
-                "mbValue": "",
-                "phValue": "",
-                "type": "gw",
-                "value": "37.5",
-                "xlValue": ""
-            }, {
-                "dataTime": "2017-06-29 18:00:00",
-                "date": "2017-06-29",
-                "hour": 18,
+                "hour": 10,
                 "mbValue": "",
                 "phValue": "",
                 "type": "kw",
-                "value": "37.4",
+                "value": "36.5",
                 "xlValue": ""
-            }, {
-                "dataTime": "2017-06-29 22:00:00",
+            },{
+                "dataTime": "2017-06-29 20:00:00",
                 "date": "2017-06-29",
-                "hour": 22,
+                "hour": 20,
                 "mbValue": "",
                 "phValue": "",
                 "type": "kw",
-                "value": "36.8",
+                "value": "36.5",
                 "xlValue": ""
-            }, {
-                "dataTime": "2017-06-30 02:00:00",
-                "date": "2017-06-30",
-                "hour": 2,
-                "mbValue": "",
-                "phValue": "",
-                "type": "kw",
-                "value": "37",
-                "xlValue": ""
-            }, {
+            },{
                 "dataTime": "2017-06-30 10:00:00",
                 "date": "2017-06-30",
                 "hour": 10,
                 "mbValue": "",
                 "phValue": "",
                 "type": "kw",
-                "value": "37.8",
+                "value": "36.5",
                 "xlValue": ""
-            }, 
-            // {
-            //     "dataTime": "2017-06-30 22:00:00",
-            //     "date": "2017-06-30",
-            //     "hour": 22,
+            }],
+            // "wdyw": [{
+            //     "dataTime": "2017-06-28 02:00:00",
+            //     "date": "2017-06-28",
+            //     "hour": 2,
             //     "mbValue": "",
             //     "phValue": "",
-            //     "type": "kw",
-            //     "value": "36.8",
+            //     "type": "yw",
+            //     "value": "36.0",
             //     "xlValue": ""
-            // }
-            ],
+            // },
+            // {
+            //     "dataTime": "2017-06-28 06:00:00",
+            //     "date": "2017-06-28",
+            //     "hour": 6,
+            //     "mbValue": "",
+            //     "phValue": "",
+            //     "type": "yw",
+            //     "value": "36.5",
+            //     "xlValue": ""
+            // },{
+            //     "dataTime": "2017-06-28 10:00:00",
+            //     "date": "2017-06-28",
+            //     "hour": 10,
+            //     "mbValue": "",
+            //     "phValue": "",
+            //     "type": "yw",
+            //     "value": "36.0",
+            //     "xlValue": ""
+            // }],
+            // "wdgw": [{
+            //     "dataTime": "2017-06-28 02:00:00",
+            //     "date": "2017-06-28",
+            //     "hour": 2,
+            //     "mbValue": "",
+            //     "phValue": "",
+            //     "type": "gw",
+            //     "value": "35.5",
+            //     "xlValue": ""
+            // },
+            // {
+            //     "dataTime": "2017-06-28 06:00:00",
+            //     "date": "2017-06-28",
+            //     "hour": 6,
+            //     "mbValue": "",
+            //     "phValue": "",
+            //     "type": "gw",
+            //     "value": "35.9",
+            //     "xlValue": ""
+            // },{
+            //     "dataTime": "2017-06-28 10:00:00",
+            //     "date": "2017-06-28",
+            //     "hour": 10,
+            //     "mbValue": "",
+            //     "phValue": "",
+            //     "type": "gw",
+            //     "value": "35.5",
+            //     "xlValue": ""
+            // }],
             "hzfx": [{
                 "dataTime": "2017-06-29 14:00:00",
                 "date": "2017-06-29",
@@ -472,6 +495,8 @@
         temperatureChart,
     },
     created(){
+      // this.getPatientInfo();
+      this.getInfo();
       this.params = {
         data:this.data,
         beginDate:this.beginDate,
@@ -483,20 +508,18 @@
         pointTime:this.pointTime,
         hospital:this.hospital,
       }
-      // this.getPatientInfo();
-      this.getInfo();
     },
     methods:{
       ...mapMutations({
         setKDlimit: 'SET_KDLIMIT'
       }),
       getInfo(){
-          //模拟数据
+          //模拟数据 后台录入数据
         let obj = {
           trLines:'5',
           lastTr:'',
           trLittleCounts:0,
-          beginTime:1,
+          beginTime:0,
           wdStartValue:'34',
           wdEndValue:'42',
           disKDWD:'1',
@@ -504,6 +527,14 @@
           mbEndValue:'180',
           disKDMB:'20',
           trHeight:15,
+          //图标形状设置
+          ywSet:{'color':'blue','fill':true,'type':'cross'},
+          gwSet:{'color':'blue','fill':true,'type':'circle'},
+          kwSet:{'color':'blue','fill':false,'type':'circle'},
+          wljwSet:{'color':'blue','fill':false,'type':'circle'},
+          mbSet:{'color':'red','fill':true,'type':'circle'},
+          xlSet:{'color':'red','fill':false,'type':'circle'},
+          temperatureTitle:'北京市博仁医院体温单'
         }
         //判断温度差是否有小数
         let trLittleCounts = 0;
@@ -523,6 +554,7 @@
         }
         obj.trLittleCounts = trLittleCounts;
         obj.mbEndValue = Number(obj.mbEndValue);
+        this.hospital = obj.temperatureTitle
         this.KDobj = obj;
         this.setKDlimit(this.KDobj);
       },
